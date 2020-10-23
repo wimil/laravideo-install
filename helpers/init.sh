@@ -26,4 +26,4 @@ function get_server_name(){
 get_install_type
 get_server_name
 
-server_root=/home/www/$server_name
+server_root=/var/www/$server_name
