@@ -28,6 +28,7 @@ systemctl start php-fpm
 # Creamos el folder para el server block
 mkdir -p $server_root/public
 touch $server_root/public/info.php
+echo '<?php phpinfo() ?>' >> $server_root/public/info.php
 
 # Instalar certbot
 yum install certbot python2-certbot-nginx -y
