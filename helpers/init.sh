@@ -27,6 +27,3 @@ get_install_type
 get_server_name
 
 server_root=/var/www/$server_name
-
-sftp_user="uploader"
-sftp_password= tr </dev/urandom -dc '12345!@#$%qwertQWERTasdfgASDFGzxcvbZXCVB' | head -c12

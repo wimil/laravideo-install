@@ -28,27 +28,6 @@ mkdir -p $server_root/public
 touch $server_root/public/info.php
 echo '<?php phpinfo() ?>' >>$server_root/public/info.php
 
-# Creamos el usuarios sftp
-useradd -s /sbin/nologin $sftp_user
-echo "$sftp_user:$sftp_password" | chpasswd
-sed -i "s/Subsystem      sftp/#Subsystem      sftp/g" /etc/ssh/sshd_config
-cat <<EOF >> /etc/ssh/sshd_config
-
-
-Subsystem sftp internal-sftp
-
-Match User $sftp_user
-ForceCommand internal-sftp
-PasswordAuthentication yes
-ChrootDirectory $server_root
-PermitTunnel no
-AllowAgentForwarding no
-AllowTcpForwarding no
-X11Forwarding no
-EOF
-systemctl restart sshd.service
-chown $sftp_user:$sftp_user -R $server_root
-
 
 # Instalar certbot
 yum install certbot python2-certbot-nginx -y
@@ -69,11 +48,11 @@ crontab -l | {
 } | crontab -
 
 # Instalmos ssh2 para interactuar con los archivos
-yum install libssh2-devel -y
-wget https://pecl.php.net/get/ssh2-1.2.tgz
-printf "\n" | pecl install ssh2-1.2.tgz
-echo "extension=ssh2.so" >>/etc/php.ini
-systemctl restart php-fpm
+#yum install libssh2-devel -y
+#wget https://pecl.php.net/get/ssh2-1.2.tgz
+#printf "\n" | pecl install ssh2-1.2.tgz
+#echo "extension=ssh2.so" >>/etc/php.ini
+#systemctl restart php-fpm
 
 #instalamos composer
 source ./scripts/install_composer.sh
@@ -83,4 +62,4 @@ yum install firewalld -y
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 firewall-cmd --permanent --add-service=http --add-service=https
-#reboot
+reboot
