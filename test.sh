@@ -1,3 +1,3 @@
-password= tr </dev/urandom -dc '123456789!@#$%qwertQWERTasdfgASDFGzxcvbZXCVB' | head -c12
+ftp_password=$(openssl rand -base64 12)
 
-echo $password
+echo $ftp_password

@@ -28,4 +28,4 @@ get_server_name
 
 server_root=/var/www/$server_name
 ftp_user="uploader"
-ftp_password= tr </dev/urandom -dc '123456789!@#$%qwertQWERTasdfgASDFGzxcvbZXCVB' | head -c12
+ftp_password=$(openssl rand -base64 12)
