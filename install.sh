@@ -53,7 +53,10 @@ openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pu
 chmod 600 /etc/ssl/private/pure-ftpd.pem
 systemctl enable pure-ftpd
 systemctl start pure-ftpd
-(echo $ftp_password; echo $ftp_password) | pure-pw useradd $ftp_user -u nginx -g nginx -d $server_root
+(
+    echo $ftp_password
+    echo $ftp_password
+) | pure-pw useradd $ftp_user -u nginx -g nginx -d $server_root
 chown -R nginx:nginx $server_root
 pure-pw mkdb
 systemctl restart pure-ftpd
