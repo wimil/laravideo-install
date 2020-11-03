@@ -11,7 +11,6 @@ yum install nginx -y
 systemctl enable nginx
 systemctl start nginx
 
-
 # Instalamos php 7.4
 yum install yum-utils -y
 yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
@@ -20,7 +19,6 @@ yum-config-manager --enable remi-php74
 yum install php php-fpm php-common php-xml php-mbstring php-json php-zip php-mysqlnd php-pear php-devel -y
 systemctl enable php-fpm
 
-
 # Configuramos php-fpm
 cat utils/www.conf >/etc/php-fpm.d/www.conf
 systemctl start php-fpm
@@ -28,7 +26,29 @@ systemctl start php-fpm
 # Creamos el folder para el server block
 mkdir -p $server_root/public
 touch $server_root/public/info.php
-echo '<?php phpinfo() ?>' >> $server_root/public/info.php
+echo '<?php phpinfo() ?>' >>$server_root/public/info.php
+
+# Creamos el usuarios sftp
+useradd -s /sbin/nologin $sftp_user
+echo "$sftp_user:$sftp_password" | chpasswd
+sed -i "s/Subsystem      sftp/#Subsystem      sftp/g" /etc/ssh/sshd_config
+cat <<EOF >> /etc/ssh/sshd_config
+
+
+Subsystem sftp internal-sftp
+
+Match User $sftp_user
+ForceCommand internal-sftp
+PasswordAuthentication yes
+ChrootDirectory $server_root
+PermitTunnel no
+AllowAgentForwarding no
+AllowTcpForwarding no
+X11Forwarding no
+EOF
+systemctl restart sshd.service
+chown $sftp_user:$sftp_user -R $server_root
+
 
 # Instalar certbot
 yum install certbot python2-certbot-nginx -y
