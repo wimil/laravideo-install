@@ -61,6 +61,8 @@ chown -R nginx:nginx $server_root
 pure-pw mkdb
 systemctl restart pure-ftpd
 
+echo "User: $ftp_user - Password: $ftp_password" >~/ftp_data.txt
+
 # Instalmos ssh2 para interactuar con los archivos
 #yum install libssh2-devel -y
 #wget https://pecl.php.net/get/ssh2-1.2.tgz
