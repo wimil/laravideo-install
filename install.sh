@@ -2,7 +2,6 @@
 
 source ./helpers/init.sh
 
-
 # Instalamos utilitarios
 yum install epel-release nano wget unzip -y
 
@@ -28,7 +27,6 @@ mkdir -p $server_root/public
 touch $server_root/public/info.php
 echo '<?php phpinfo() ?>' >>$server_root/public/info.php
 
-
 # Instalar certbot
 yum install certbot python2-certbot-nginx -y
 certbot certonly --webroot --non-interactive --agree-tos --register-unsafely-without-email -w /usr/share/nginx/html -d $server_name
@@ -47,6 +45,19 @@ crontab -l | {
     echo "01 02,14 * * * /etc/cron.daily/letsencrypt-renew"
 } | crontab -
 
+# Instalar Pure-Ftp
+yum install pure-ftpd -y
+cat utils/pure-ftpd.conf >/etc/pure-ftpd/pure-ftpd.conf
+mkdir -p /etc/ssl/private/
+openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem -subj "/C=US/ST=Denial/L=Springfield/O=Rldev/OU=IT Department/CN=$server_name"
+chmod 600 /etc/ssl/private/pure-ftpd.pem
+systemctl enable pure-ftpd
+systemctl start pure-ftpd
+(echo $ftp_password; echo $ftp_password) | pure-pw useradd $ftp_user -u nginx -g nginx -d $server_root
+chown -R nginx:nginx $server_root
+pure-pw mkdb
+systemctl restart pure-ftpd
+
 # Instalmos ssh2 para interactuar con los archivos
 #yum install libssh2-devel -y
 #wget https://pecl.php.net/get/ssh2-1.2.tgz
@@ -61,5 +72,5 @@ source ./scripts/install_composer.sh
 yum install firewalld -y
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
-firewall-cmd --permanent --add-service=http --add-service=https
+firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
 reboot

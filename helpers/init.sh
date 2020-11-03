@@ -13,7 +13,7 @@ function get_install_type() {
   fi
 }
 
-function get_server_name(){
+function get_server_name() {
   echo -ne "\033[32m Nombre del servidor [ejemplo: example.com]: \033[0m"
   read serverName
   if [[ -z "$installType" ]]; then
@@ -27,3 +27,5 @@ get_install_type
 get_server_name
 
 server_root=/var/www/$server_name
+ftp_user="uploader"
+ftp_password= tr </dev/urandom -dc '123456789!@#$%qwertQWERTasdfgASDFGzxcvbZXCVB' | head -c12
