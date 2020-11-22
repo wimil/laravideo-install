@@ -27,8 +27,8 @@ systemctl start php-fpm
 
 # Creamos el folder para el server block
 mkdir -p $server_root/public
-touch $server_root/public/info.php
-echo '<?php phpinfo() ?>' >>$server_root/public/info.php
+#touch $server_root/public/info.php
+#echo '<?php phpinfo() ?>' >>$server_root/public/info.php
 
 # Instalar certbot
 yum install certbot python2-certbot-nginx -y
@@ -71,7 +71,9 @@ yum -y install supervisor
 systemctl start supervisord
 systemctl enable supervisord
 
-if [[ "$install_type" == "encoder" ]]; then
+echo "$install_type"
+
+if [[ $install_type == "encoder" ]]; then
     touch /etc/supervisord.d/encoder.ini
     cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
     sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/encoder.ini
@@ -97,6 +99,8 @@ systemctl enable firewalld
 firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
 
 #Copiamos el script al server block
+rm -rf $server_root
+mkdir -p $server_root
 mv ./laravideo-encoder/* $server_root
 chown -R nginx:nginx $server_root
 
