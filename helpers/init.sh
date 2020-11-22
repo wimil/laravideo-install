@@ -9,7 +9,7 @@ function get_install_type() {
   if [[ -z "$installType" ]]; then
     get_install_type
   else
-    install_type=$install_type
+    install_type=$installType
   fi
 }
 
