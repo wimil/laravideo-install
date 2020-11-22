@@ -2,6 +2,9 @@
 
 source ./helpers/init.sh
 
+#Descargamos el script
+git clone https://github.com/wimil/laravideo-encoder.git
+
 # Instalamos utilitarios
 yum install epel-release nano wget unzip -y
 
@@ -63,19 +66,44 @@ systemctl restart pure-ftpd
 
 echo "User: $ftp_user - Password: $ftp_password" >~/ftp_data.txt
 
-# Instalmos ssh2 para interactuar con los archivos
-#yum install libssh2-devel -y
-#wget https://pecl.php.net/get/ssh2-1.2.tgz
-#printf "\n" | pecl install ssh2-1.2.tgz
-#echo "extension=ssh2.so" >>/etc/php.ini
-#systemctl restart php-fpm
+#Instalamos supervisor
+yum -y install supervisor
+systemctl start supervisord
+systemctl enable supervisord
+
+if [[ "$install_type" == "encoder" ]]; then
+    touch /etc/supervisor.d/encoder.ini
+    cat utils/supervisor/encoder.ini >/etc/supervisor.d/encoder.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/encoder.ini
+
+    touch /etc/supervisor.d/storing.ini
+    cat utils/supervisor/storing.ini >/etc/supervisor.d/storing.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/storing.ini
+
+else
+    touch /etc/supervisor.d/ipfs.ini
+    cat utils/supervisor/ipfs.ini >/etc/supervisor.d/ipfs.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/ipfs.ini
+fi
+supervisorctl reload
 
 #instalamos composer
 source ./scripts/install_composer.sh
 
 # Instalar firewall
 yum install firewalld -y
-sudo systemctl start firewalld
-sudo systemctl enable firewalld
+systemctl start firewalld
+systemctl enable firewalld
 firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
+
+#Copiamos el script al server block
+mv ~/laravideo-encoder/* $server_root
+chown -R nginx:nginx $server_root
+
+# Movemos los binarios
+mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
+mv $server_root/ffmpeg/ffprobe /usr/bin/ffprobe
+chmod +x /usr/bin/ffmpeg
+chmod +x /usr/bin/ffprobe
+
 reboot

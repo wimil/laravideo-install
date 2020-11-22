@@ -28,4 +28,5 @@ get_server_name
 
 server_root=/var/www/$server_name
 ftp_user="uploader"
-ftp_password=$(openssl rand -base64 12)
+ftp_password="1234"
+#ftp_password=$(openssl rand -base64 12)
