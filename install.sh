@@ -76,11 +76,11 @@ echo "$install_type"
 if [[ $install_type == "encoder" ]]; then
     touch /etc/supervisord.d/encoder.ini
     cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/encoder.ini
+    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/encoder.ini
 
     touch /etc/supervisord.d/storing.ini
     cat utils/supervisor/storing.ini >/etc/supervisord.d/storing.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/storing.ini
+    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/storing.ini
 
 else
     touch /etc/supervisord.d/ipfs.ini
