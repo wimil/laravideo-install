@@ -3,6 +3,15 @@
 install_type=""
 server_name=""
 
+function message() {
+    if [[ $1 == "error" ]]; then
+        color='\033[0;31m'
+    else
+        color='\033[0;32m'
+    fi
+    echo -e "\n${color}$2\033[0m\n";
+}
+
 function get_install_type() {
   echo -ne "\033[32m Tipo de instalacion [default: storage]: \033[0m"
   read installType

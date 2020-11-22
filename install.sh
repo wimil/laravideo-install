@@ -13,6 +13,8 @@ yum install nginx -y
 systemctl enable nginx
 systemctl start nginx
 
+message "success" "Nginx Instalado y configurado"
+
 # Instalamos php 7.4
 yum install yum-utils -y
 yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
@@ -24,6 +26,8 @@ systemctl enable php-fpm
 # Configuramos php-fpm
 cat utils/www.conf >/etc/php-fpm.d/www.conf
 systemctl start php-fpm
+
+message "success" "PHP 7.4 Instalado y configurado"
 
 # Creamos el folder para el server block
 mkdir -p $server_root/public
@@ -48,6 +52,8 @@ crontab -l | {
     echo "01 02,14 * * * /etc/cron.daily/letsencrypt-renew"
 } | crontab -
 
+message "success" "Certbot Instalado y configurado"
+
 # Instalar Pure-Ftp
 yum install pure-ftpd -y
 cat utils/pure-ftpd.conf >/etc/pure-ftpd/pure-ftpd.conf
@@ -66,12 +72,12 @@ systemctl restart pure-ftpd
 
 echo "User: $ftp_user - Password: $ftp_password" >~/ftp_data.txt
 
+message "success" "PureFtp Instalado y configurado"
+
 #Instalamos supervisor
 yum -y install supervisor
 systemctl start supervisord
 systemctl enable supervisord
-
-echo "$install_type"
 
 if [[ $install_type == "encoder" ]]; then
     touch /etc/supervisord.d/encoder.ini
@@ -89,14 +95,20 @@ else
 fi
 supervisorctl reload
 
+message "success" "Supervisor instalado y configurado"
+
 #instalamos composer
 source ./scripts/install_composer.sh
+
+message "success" "Composer Instalado y configurado"
 
 # Instalar firewall
 yum install firewalld -y
 systemctl start firewalld
 systemctl enable firewalld
 firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
+
+message "success" "Firewalld instalado y configurado"
 
 #Copiamos el script al server block y configuramos
 rm -rf $server_root
@@ -107,10 +119,16 @@ chcon -Rt httpd_sys_content_t $server_root
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/storage(/.*)?"
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/bootstrap/cache(/.*)?"
 
-# Movemos los binarios
-mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
-mv $server_root/ffmpeg/ffprobe /usr/bin/ffprobe
-chmod +x /usr/bin/ffmpeg
-chmod +x /usr/bin/ffprobe
+message "success" "Server block configurado!"
+
+if [[ $install_type == 'encoder' ]]; then
+    # Movemos los binarios
+    mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
+    mv $server_root/ffmpeg/ffprobe /usr/bin/ffprobe
+    chmod +x /usr/bin/ffmpeg
+    chmod +x /usr/bin/ffprobe
+
+    message "success" "Binarios ffmpeg instalados!"
+fi
 
 reboot

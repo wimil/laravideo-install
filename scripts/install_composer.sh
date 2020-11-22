@@ -13,5 +13,3 @@ php composer-setup.php --quiet
 RESULT=$?
 rm -rf composer-setup.php
 mv composer.phar /usr/local/bin/composer
-
-echo "Composer instalado correctamente"
