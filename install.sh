@@ -98,12 +98,14 @@ systemctl start firewalld
 systemctl enable firewalld
 firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
 
-#Copiamos el script al server block
+#Copiamos el script al server block y configuramos
 rm -rf $server_root
 mkdir -p $server_root
 mv laravideo-encoder/* $server_root/
 chown -R nginx:nginx $server_root
-chcon -Rt httpd_sys_content_t /var/www/$server_root
+chcon -Rt httpd_sys_content_t $server_root
+semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/storage(/.*)?"
+semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/bootstrap/cache(/.*)?"
 
 # Movemos los binarios
 mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
