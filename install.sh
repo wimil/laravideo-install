@@ -72,18 +72,18 @@ systemctl start supervisord
 systemctl enable supervisord
 
 if [[ "$install_type" == "encoder" ]]; then
-    touch /etc/supervisor.d/encoder.ini
-    cat utils/supervisor/encoder.ini >/etc/supervisor.d/encoder.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/encoder.ini
+    touch /etc/supervisord.d/encoder.ini
+    cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/encoder.ini
 
-    touch /etc/supervisor.d/storing.ini
-    cat utils/supervisor/storing.ini >/etc/supervisor.d/storing.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/storing.ini
+    touch /etc/supervisord.d/storing.ini
+    cat utils/supervisor/storing.ini >/etc/supervisord.d/storing.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/storing.ini
 
 else
-    touch /etc/supervisor.d/ipfs.ini
-    cat utils/supervisor/ipfs.ini >/etc/supervisor.d/ipfs.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisor.d/ipfs.ini
+    touch /etc/supervisord.d/ipfs.ini
+    cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
+    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/ipfs.ini
 fi
 supervisorctl reload
 
@@ -97,7 +97,7 @@ systemctl enable firewalld
 firewall-cmd --permanent --zone=public --add-service=http --add-service=https --add-service=ftp
 
 #Copiamos el script al server block
-mv ~/laravideo-encoder/* $server_root
+mv ./laravideo-encoder/* $server_root
 chown -R nginx:nginx $server_root
 
 # Movemos los binarios
