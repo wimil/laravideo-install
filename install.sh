@@ -85,7 +85,7 @@ if [[ $install_type == "encoder" ]]; then
 else
     touch /etc/supervisord.d/ipfs.ini
     cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
-    sed -i "s/{server_root}/$server_root/g" /etc/supervisord.d/ipfs.ini
+    sed -i "s/{server_name}/$server_root/g" /etc/supervisord.d/ipfs.ini
 fi
 supervisorctl reload
 
@@ -101,8 +101,9 @@ firewall-cmd --permanent --zone=public --add-service=http --add-service=https --
 #Copiamos el script al server block
 rm -rf $server_root
 mkdir -p $server_root
-mv ./laravideo-encoder/* $server_root
+mv laravideo-encoder/* $server_root/
 chown -R nginx:nginx $server_root
+chcon -Rt httpd_sys_content_t /var/www/$server_root
 
 # Movemos los binarios
 mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
