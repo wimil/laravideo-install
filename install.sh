@@ -3,7 +3,11 @@
 source ./helpers/init.sh
 
 #Descargamos el script
-git clone https://github.com/wimil/laravideo-encoder.git
+if [[ $install_type == "encoder" ]]; then
+    git clone https://github.com/wimil/laravideo-encoder.git
+else
+    git clone https://github.com/wimil/laravideo-storage.git
+fi
 
 # Instalamos utilitarios
 yum install epel-release nano wget unzip -y
@@ -20,7 +24,7 @@ yum install yum-utils -y
 yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
 yum --disablerepo="*" --enablerepo="remi-safe" list php[7-9][0-9].x86_64
 yum-config-manager --enable remi-php74
-yum install php php-fpm php-common php-xml php-mbstring php-json php-zip php-mysqlnd php-pear php-devel -y
+yum install php php-fpm php-common php-bcmath php-xml php-mbstring php-json php-zip php-mysqlnd php-pear php-devel -y
 systemctl enable php-fpm
 
 # Configuramos php-fpm
@@ -79,23 +83,7 @@ yum -y install supervisor
 systemctl start supervisord
 systemctl enable supervisord
 
-if [[ $install_type == "encoder" ]]; then
-    touch /etc/supervisord.d/encoder.ini
-    cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
-    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/encoder.ini
-
-    touch /etc/supervisord.d/storing.ini
-    cat utils/supervisor/storing.ini >/etc/supervisord.d/storing.ini
-    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/storing.ini
-
-else
-    touch /etc/supervisord.d/ipfs.ini
-    cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
-    sed -i "s/{server_name}/$server_root/g" /etc/supervisord.d/ipfs.ini
-fi
-supervisorctl reload
-
-message "success" "Supervisor instalado y configurado"
+message "success" "Supervisor Instalado"
 
 #instalamos composer
 source ./scripts/install_composer.sh
@@ -113,22 +101,60 @@ message "success" "Firewalld instalado y configurado"
 #Copiamos el script al server block y configuramos
 rm -rf $server_root
 mkdir -p $server_root
+shopt -s dotglob
 mv laravideo-encoder/* $server_root/
+cd $server_root
+mv .env.example .env
+composer install
+
+cd ~/laravideo-install
+
 chown -R nginx:nginx $server_root
 chcon -Rt httpd_sys_content_t $server_root
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/storage(/.*)?"
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/bootstrap/cache(/.*)?"
+restorecon -Rv /var/www/$server_root
+setsebool -P httpd_can_network_connect_db 1
 
 message "success" "Server block configurado!"
 
 if [[ $install_type == 'encoder' ]]; then
-    # Movemos los binarios
+
+    # Upload File Size
+    sed '/http {/a \    client_max_body_size 3500M;' -i /etc/nginx/nginx.conf
+    sed -i 's,^upload_max_filesize =.*$,upload_max_filesize = 3000M,' /etc/php.ini
+    sed -i 's,^post_max_size =.*$,post_max_size = 3500M,' /etc/php.ini
+    systemctl restart php-fpm
+    systemctl restart nginx
+
+    # Movemos los binarios ffmpeg
     mv $server_root/ffmpeg/ffmpeg /usr/bin/ffmpeg
     mv $server_root/ffmpeg/ffprobe /usr/bin/ffprobe
     chmod +x /usr/bin/ffmpeg
     chmod +x /usr/bin/ffprobe
+    chcon -t execmem_exec_t '/usr/bin/ffmpeg'
+    chcon -t execmem_exec_t '/usr/bin/ffprobe'
 
-    message "success" "Binarios ffmpeg instalados!"
+    # Configurando el supervisor
+    touch /etc/supervisord.d/encoder.ini
+    cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
+    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/encoder.ini
+
+    touch /etc/supervisord.d/storing.ini
+    cat utils/supervisor/storing.ini >/etc/supervisord.d/storing.ini
+    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/storing.ini
+
+    message "success" "Tipo encoder Configurado!!"
+
+else
+    touch /etc/supervisord.d/ipfs.ini
+    cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
+    sed -i "s/{server_name}/$server_root/g" /etc/supervisord.d/ipfs.ini
+
+    message "success" "Tipo storage Configurado!!"
 fi
+
+supervisorctl reload
+message "success" "Supervisor configurado"
 
 reboot
