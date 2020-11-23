@@ -106,7 +106,7 @@ message "success" "Firewalld instalado y configurado"
 rm -rf $server_root
 mkdir -p $server_root
 shopt -s dotglob
-mv laravideo-encoder/* $server_root/
+mv laravideo-$install_type/* $server_root/
 cd $server_root
 mv .env.example .env
 composer install
@@ -153,6 +153,8 @@ if [[ $install_type == 'encoder' ]]; then
     message "success" "Tipo encoder Configurado!!"
 
 else
+    firewall-cmd --zone=public --permanent --add-port=8080/tcp
+
     touch /etc/supervisord.d/ipfs.ini
     cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
     sed -i "s/{server_name}/$server_root/g" /etc/supervisord.d/ipfs.ini
