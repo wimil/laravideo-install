@@ -157,7 +157,7 @@ else
 
     touch /etc/supervisord.d/ipfs.ini
     cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
-    sed -i "s/{server_name}/$server_root/g" /etc/supervisord.d/ipfs.ini
+    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/ipfs.ini
 
     message "success" "Tipo storage Configurado!!"
 fi
