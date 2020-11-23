@@ -13,3 +13,5 @@ php composer-setup.php --quiet
 RESULT=$?
 rm -rf composer-setup.php
 mv composer.phar /usr/local/bin/composer
+
+export COMPOSER_ALLOW_SUPERUSER=1
