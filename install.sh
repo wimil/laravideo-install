@@ -2,15 +2,19 @@
 
 source ./helpers/init.sh
 
+# Instalamos utilitarios
+yum install epel-release nano wget unzip -y
+
 #Descargamos el script
 if [[ $install_type == "encoder" ]]; then
     git clone https://github.com/wimil/laravideo-encoder.git
 else
     git clone https://github.com/wimil/laravideo-storage.git
-fi
 
-# Instalamos utilitarios
-yum install epel-release nano wget unzip -y
+    # Instalar ipfs
+    source ./scripts/install_ipfs.sh
+    message "success" "Ipfs Instalado y configurado"
+fi
 
 #Instalamos nginx, lo habilitamos e iniciamos
 yum install nginx -y
@@ -106,6 +110,8 @@ mv laravideo-encoder/* $server_root/
 cd $server_root
 mv .env.example .env
 composer install
+php artisan key:generate
+php artisan storage:link
 
 cd ~/laravideo-install
 
@@ -113,7 +119,7 @@ chown -R nginx:nginx $server_root
 chcon -Rt httpd_sys_content_t $server_root
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/storage(/.*)?"
 semanage fcontext -a -t httpd_sys_rw_content_t "$server_root/bootstrap/cache(/.*)?"
-restorecon -Rv /var/www/$server_root
+restorecon -Rv $server_root
 setsebool -P httpd_can_network_connect_db 1
 
 message "success" "Server block configurado!"
