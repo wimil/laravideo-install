@@ -13,7 +13,7 @@ function message() {
 }
 
 function get_install_type() {
-  echo -ne "\033[32m Tipo de instalacion [default: storage]: \033[0m"
+  echo -ne "\033[32m Tipo de instalacion [ejemplo: storage]: \033[0m"
   read installType
   if [[ -z "$installType" ]]; then
     get_install_type
@@ -36,6 +36,7 @@ get_install_type
 get_server_name
 
 server_root=/var/www/$server_name
-ftp_user="uploader"
-ftp_password="1234"
-#ftp_password=$(openssl rand -base64 12)
+ftp_user=$install_type
+ftp_password=$(openssl rand -base64 12)
+ftp_port="21"
+

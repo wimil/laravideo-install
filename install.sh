@@ -6,15 +6,24 @@ source ./helpers/init.sh
 yum install epel-release nano wget unzip -y
 
 #Descargamos el script
-if [[ $install_type == "encoder" ]]; then
+case $install_type in
+"encoder")
     git clone https://github.com/wimil/laravideo-encoder.git
-else
+    ;;
+"storage")
     git clone https://github.com/wimil/laravideo-storage.git
 
     # Instalar ipfs
     source ./scripts/install_ipfs.sh
     message "success" "Ipfs Instalado y configurado"
-fi
+    ;;
+"backup")
+    git clone https://github.com/wimil/laravideo-backup.git
+    ;;
+*)
+    echo ""
+    ;;
+esac
 
 #Instalamos nginx, lo habilitamos e iniciamos
 yum install nginx -y
@@ -152,7 +161,7 @@ if [[ $install_type == 'encoder' ]]; then
 
     message "success" "Tipo encoder Configurado!!"
 
-else
+elif [[ $install_type == 'storage' ]]; then
     firewall-cmd --zone=public --permanent --add-port=8080/tcp
 
     touch /etc/supervisord.d/ipfs.ini
@@ -160,6 +169,7 @@ else
     sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/ipfs.ini
 
     message "success" "Tipo storage Configurado!!"
+
 fi
 
 supervisorctl reload
