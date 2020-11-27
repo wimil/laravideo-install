@@ -87,8 +87,6 @@ chown -R nginx:nginx $server_root
 pure-pw mkdb
 systemctl restart pure-ftpd
 
-echo "User: $ftp_user - Password: $ftp_password" >~/ftp_data.txt
-
 message "success" "PureFtp Instalado y configurado"
 
 #Instalamos supervisor
@@ -117,6 +115,7 @@ mkdir -p $server_root
 shopt -s dotglob
 mv laravideo-$install_type/* $server_root/
 cd $server_root
+echo "$ftp_user||$ftp_password||$ftp_port" >storage/app/ftp_account.txt
 mv .env.example .env
 composer install
 php artisan key:generate
