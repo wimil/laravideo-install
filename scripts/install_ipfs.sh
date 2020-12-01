@@ -21,9 +21,8 @@ EOF
 
 ipfs init
 ipfs config profile apply server
-#ipfs config profile apply randomports
-ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
-ipfs config --json Addresses.Swarm '[]'
+#ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
+#ipfs config --json Addresses.Swarm '[]'
 ipfs config --json Gateway.NoFetch true
 
 # enable and start service ipfs
