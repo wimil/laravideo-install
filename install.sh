@@ -152,26 +152,26 @@ if [[ $install_type == 'encoder' ]]; then
     # Configurando el supervisor
     touch /etc/supervisord.d/encoder.ini
     cat utils/supervisor/encoder.ini >/etc/supervisord.d/encoder.ini
-    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/encoder.ini
+    sed -i "s/{server_name}/$server_name/g;s/{server_id}/$server_id/g" /etc/supervisord.d/encoder.ini
 
     touch /etc/supervisord.d/storing.ini
     cat utils/supervisor/storing.ini >/etc/supervisord.d/storing.ini
-    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/storing.ini
+    sed -i "s/{server_name}/$server_name/g;s/{server_id}/$server_id/g" /etc/supervisord.d/storing.ini
 
     message "success" "Tipo encoder Configurado!!"
 
 elif [[ $install_type == 'storage' ]]; then
-    firewall-cmd --zone=public --permanent --add-port=8080/tcp
+    #firewall-cmd --zone=public --permanent --add-port=8080/tcp
 
     touch /etc/supervisord.d/ipfs.ini
     cat utils/supervisor/ipfs.ini >/etc/supervisord.d/ipfs.ini
-    sed -i "s/{server_name}/$server_name/g" /etc/supervisord.d/ipfs.ini
+    sed -i "s/{server_name}/$server_name/g;s/{server_id}/$server_id/g" /etc/supervisord.d/ipfs.ini
 
     message "success" "Tipo storage Configurado!!"
 
 fi
 
-supervisorctl reload
+#supervisorctl reload
 message "success" "Supervisor configurado"
 
 reboot

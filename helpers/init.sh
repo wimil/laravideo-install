@@ -2,6 +2,7 @@
 
 install_type=""
 server_name=""
+server_id=""
 
 function message() {
     if [[ $1 == "error" ]]; then
@@ -32,8 +33,19 @@ function get_server_name() {
   fi
 }
 
+function get_server_id() {
+  echo -ne "\033[32m ID del servidor [ejemplo: 1]: \033[0m"
+  read serverID
+  if [[ -z "$serverID" ]]; then
+    get_server_id
+  else
+    server_id=$serverID
+  fi
+}
+
 get_install_type
 get_server_name
+get_server_id
 
 server_root=/var/www/$server_name
 ftp_user=$install_type
