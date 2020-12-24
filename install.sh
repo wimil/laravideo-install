@@ -135,9 +135,9 @@ message "success" "Server block configurado!"
 if [[ $install_type == 'encoder' ]]; then
 
     # Upload File Size
-    sed '/http {/a \    client_max_body_size 3500M;' -i /etc/nginx/nginx.conf
-    sed -i 's,^upload_max_filesize =.*$,upload_max_filesize = 3000M,' /etc/php.ini
-    sed -i 's,^post_max_size =.*$,post_max_size = 3500M,' /etc/php.ini
+    sed '/http {/a \    client_max_body_size 6500M;' -i /etc/nginx/nginx.conf
+    sed -i 's,^upload_max_filesize =.*$,upload_max_filesize = 6000M,' /etc/php.ini
+    sed -i 's,^post_max_size =.*$,post_max_size = 6500M,' /etc/php.ini
     systemctl restart php-fpm
     systemctl restart nginx
 
